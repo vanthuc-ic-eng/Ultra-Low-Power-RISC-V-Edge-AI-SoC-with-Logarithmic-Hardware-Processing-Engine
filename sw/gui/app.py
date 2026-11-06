@@ -512,12 +512,27 @@ class RequestHandler(BaseHTTPRequestHandler):
                 "mode": mode
             }).encode("utf-8"))
 
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
 def main():
-    port = 8080
-    server = HTTPServer(("0.0.0.0", port), RequestHandler)
+    port = int(os.environ.get("PORT", 8080))
+    server = None
+    for p in range(port, port + 10):
+        try:
+            server = ReusableHTTPServer(("0.0.0.0", p), RequestHandler)
+            port = p
+            break
+        except OSError:
+            continue
+    if server is None:
+        print("[ERROR] Could not bind to any port from 8080 to 8090.")
+        sys.exit(1)
+
     print("\n" + "=" * 80)
     print("   MINI-PULP LA-HWPE EDGE AI ACCELERATOR: INTERACTIVE LIVE DEMO GUI")
     print(f"   Server active at: http://localhost:{port}/")
+    print(f"   (Also accessible from LAN/WiFi if running on same network)")
     print("   Press Ctrl+C to stop server.")
     print("=" * 80 + "\n")
     try:
