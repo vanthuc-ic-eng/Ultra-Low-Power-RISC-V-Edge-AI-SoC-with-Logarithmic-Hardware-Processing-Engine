@@ -291,7 +291,7 @@ def main():
                 f.write(f"| {s['freq_mhz']} MHz | {s['period_ns']:.2f} ns | +{s['wns_ns']:.3f} ns | {met} | {s['p_dyn_mw']:.1f} mW | {s['latency_us']:.2f} µs | {s['fps']:,.0f} FPS | {s['energy_uj']:.2f} µJ |\n")
             f.write("\n")
 
-        f.write("## 3. DANH MỤC CÁC FILE BÁO CÁO GỐC TỪ VIVADO 2024.2\n\n")
+        f.write("## 4. DANH MỤC CÁC FILE BÁO CÁO GỐC TỪ VIVADO 2024.2\n\n")
         f.write("Tất cả các file báo cáo chi tiết chuẩn công nghiệp được lưu trữ đầy đủ tại thư mục `synth/reports/`:\n\n")
         f.write("1. **`pnr_util.rpt`**: Báo cáo tổng thể tài nguyên logic (LUT, FF, BRAM, DSP, I/O, BUFG).\n")
         f.write("2. **`pnr_util_hierarchical.rpt`**: Báo cáo tài nguyên phân tầng chi tiết từng module (CPU, HWPE, TCDM, Crossbar, PE MAC).\n")

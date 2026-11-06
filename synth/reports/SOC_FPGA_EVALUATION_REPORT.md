@@ -50,7 +50,7 @@
 | 100 MHz | 10.00 ns | +0.000 ns | ✅ ĐẠT | 110.0 mW | 127.90 µs | 7,819 FPS | 14.07 µJ |
 | 125 MHz | 8.00 ns | +0.000 ns | ✅ ĐẠT | 138.0 mW | 102.32 µs | 9,773 FPS | 14.12 µJ |
 
-## 3. DANH MỤC CÁC FILE BÁO CÁO GỐC TỪ VIVADO 2024.2
+## 4. DANH MỤC CÁC FILE BÁO CÁO GỐC TỪ VIVADO 2024.2
 
 Tất cả các file báo cáo chi tiết chuẩn công nghiệp được lưu trữ đầy đủ tại thư mục `synth/reports/`:
 
