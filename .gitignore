@@ -12,6 +12,7 @@ synth/clockInfo.txt
 synth/*.backup.*
 synth/.Xil/
 synth/reports/
+report/
 
 # Python Cache & Bytecode
 __pycache__/
