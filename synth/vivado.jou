@@ -3,8 +3,8 @@
 # SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
 # IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
 # SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-# Start of session at: Sat Nov  7 00:34:38 2026
-# Process ID         : 279993
+# Start of session at: Sat Nov  7 02:19:21 2026
+# Process ID         : 287409
 # Current directory  : /workspace/projects/pulp_edge_ai_soc/synth
 # Command line       : vivado -mode batch -source run_synth.tcl
 # Log file           : /workspace/projects/pulp_edge_ai_soc/synth/vivado.log
@@ -13,12 +13,12 @@
 # Platform           : Ubuntu
 # Operating System   : Ubuntu 24.04.5 LTS
 # Processor Detail   : AMD Ryzen 7 6800HS with Radeon Graphics
-# CPU Frequency      : 2009.384 MHz
+# CPU Frequency      : 2012.293 MHz
 # CPU Physical cores : 8
 # CPU Logical cores  : 16
 # Host memory        : 15977 MB
 # Swap memory        : 4294 MB
 # Total Virtual      : 20272 MB
-# Available Virtual  : 13030 MB
+# Available Virtual  : 13479 MB
 #-----------------------------------------------------------
 source run_synth.tcl
