@@ -187,39 +187,53 @@ module riscv_core_rv32i #(
     // ------------------------------------------------------------------------
     // Memory Interface Outputs
     // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Memory Interface Outputs (Fully registered pipeline stage)
+    // ------------------------------------------------------------------------
+    logic [31:0] data_addr_q;
+    logic [31:0] data_wdata_q;
+    logic [3:0]  data_be_q;
+    logic        data_req_q;
+    logic        data_we_q;
+    logic [1:0]  byte_offset_q;
+
     assign instr_addr_o = pc_q;
     assign instr_req_o  = (state == STATE_FETCH);
 
-    assign data_addr_o  = alu_result;
-    assign data_req_o   = (state == STATE_EXECUTE || state == STATE_MEM_WAIT) && ((opcode == 7'b0000011) || (opcode == 7'b0100011));
-    assign data_we_o    = (opcode == 7'b0100011);
+    assign data_addr_o  = data_addr_q;
+    assign data_wdata_o = data_wdata_q;
+    assign data_be_o    = data_be_q;
+    assign data_req_o   = data_req_q && (state == STATE_MEM_WAIT);
+    assign data_we_o    = data_we_q;
 
-    // Byte enables and store data formatting
+    // Byte enables and store data formatting (combinational before registering)
+    logic [3:0]  data_be_comb;
+    logic [31:0] data_wdata_comb;
     always_comb begin
         case (funct3[1:0])
             2'b00: begin // SB
-                data_be_o = 4'b0001 << alu_result[1:0];
-                data_wdata_o = {4{rs2_data[7:0]}};
+                data_be_comb = 4'b0001 << alu_result[1:0];
+                data_wdata_comb = {4{rs2_data[7:0]}};
             end
             2'b01: begin // SH
-                data_be_o = alu_result[1] ? 4'b1100 : 4'b0011;
-                data_wdata_o = {2{rs2_data[15:0]}};
+                data_be_comb = alu_result[1] ? 4'b1100 : 4'b0011;
+                data_wdata_comb = {2{rs2_data[15:0]}};
             end
             default: begin // SW (2'b10)
-                data_be_o = 4'b1111;
-                data_wdata_o = rs2_data;
+                data_be_comb = 4'b1111;
+                data_wdata_comb = rs2_data;
             end
         endcase
     end
 
     // ------------------------------------------------------------------------
-    // Register Writeback Formatting
+    // Register Writeback Formatting (Decoupled with registered byte_offset_q)
     // ------------------------------------------------------------------------
     logic [31:0] load_data_formatted;
     always_comb begin
         case (funct3)
             3'b000: begin // LB
-                case (alu_result[1:0])
+                case (byte_offset_q)
                     2'b00: load_data_formatted = {{24{data_rdata_i[7]}},  data_rdata_i[7:0]};
                     2'b01: load_data_formatted = {{24{data_rdata_i[15]}}, data_rdata_i[15:8]};
                     2'b10: load_data_formatted = {{24{data_rdata_i[23]}}, data_rdata_i[23:16]};
@@ -227,14 +241,14 @@ module riscv_core_rv32i #(
                 endcase
             end
             3'b001: begin // LH
-                load_data_formatted = alu_result[1] ? {{16{data_rdata_i[31]}}, data_rdata_i[31:16]}
-                                                    : {{16{data_rdata_i[15]}}, data_rdata_i[15:0]};
+                load_data_formatted = byte_offset_q[1] ? {{16{data_rdata_i[31]}}, data_rdata_i[31:16]}
+                                                       : {{16{data_rdata_i[15]}}, data_rdata_i[15:0]};
             end
             3'b010: begin // LW
                 load_data_formatted = data_rdata_i;
             end
             3'b100: begin // LBU
-                case (alu_result[1:0])
+                case (byte_offset_q)
                     2'b00: load_data_formatted = {24'd0, data_rdata_i[7:0]};
                     2'b01: load_data_formatted = {24'd0, data_rdata_i[15:8]};
                     2'b10: load_data_formatted = {24'd0, data_rdata_i[23:16]};
@@ -242,8 +256,8 @@ module riscv_core_rv32i #(
                 endcase
             end
             3'b101: begin // LHU
-                load_data_formatted = alu_result[1] ? {16'd0, data_rdata_i[31:16]}
-                                                    : {16'd0, data_rdata_i[15:0]};
+                load_data_formatted = byte_offset_q[1] ? {16'd0, data_rdata_i[31:16]}
+                                                       : {16'd0, data_rdata_i[15:0]};
             end
             default: load_data_formatted = data_rdata_i;
         endcase
@@ -333,12 +347,36 @@ module riscv_core_rv32i #(
     // ------------------------------------------------------------------------
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            state   <= STATE_FETCH;
-            pc_q    <= BOOT_ADDR;
-            instr_q <= 32'h0000_0013; // NOP (addi x0, x0, 0)
+            state         <= STATE_FETCH;
+            pc_q          <= BOOT_ADDR;
+            instr_q       <= 32'h0000_0013; // NOP (addi x0, x0, 0)
+            byte_offset_q <= 2'b00;
+            data_addr_q   <= 32'd0;
+            data_wdata_q  <= 32'd0;
+            data_be_q     <= 4'd0;
+            data_req_q    <= 1'b0;
+            data_we_q     <= 1'b0;
         end else begin
             state <= state_next;
             pc_q  <= pc_next;
+
+            if (state == STATE_EXECUTE) begin
+                byte_offset_q <= alu_result[1:0];
+                if ((opcode == 7'b0000011) || (opcode == 7'b0100011)) begin
+                    data_addr_q   <= alu_result;
+                    data_wdata_q  <= data_wdata_comb;
+                    data_be_q     <= data_be_comb;
+                    data_req_q    <= 1'b1;
+                    data_we_q     <= (opcode == 7'b0100011);
+                end else begin
+                    data_req_q    <= 1'b0;
+                end
+            end else if (state == STATE_MEM_WAIT) begin
+                // Pulse request for exactly 1 cycle
+                data_req_q <= 1'b0;
+            end else begin
+                data_req_q <= 1'b0;
+            end
 
             if (state == STATE_FETCH && instr_valid_i) begin
                 instr_q <= instr_data_i;

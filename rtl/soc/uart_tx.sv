@@ -47,18 +47,22 @@ module uart_tx #(
 
     assign tx_busy = (tx_state != TX_IDLE);
 
-    // Bus Read
-    always_comb begin
-        if (req_i && !we_i) begin
-            case (addr_i[3:2])
-                2'b00: rdata_o = {24'd0, tx_data_reg};
-                2'b01: rdata_o = {31'd0, !tx_busy}; // Bit 0: Ready
-                default: rdata_o = 32'd0;
-            endcase
-            valid_o = 1'b1;
+    // Bus Read Synchronous Registration (1-cycle read latency)
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            valid_o <= 1'b0;
+            rdata_o <= 32'd0;
         end else begin
-            rdata_o = 32'd0;
-            valid_o = req_i && we_i;
+            valid_o <= req_i;
+            if (req_i && !we_i) begin
+                case (addr_i[3:2])
+                    2'b00: rdata_o <= {24'd0, tx_data_reg};
+                    2'b01: rdata_o <= {31'd0, !tx_busy}; // Bit 0: Ready
+                    default: rdata_o <= 32'd0;
+                endcase
+            end else begin
+                rdata_o <= 32'd0;
+            end
         end
     end
 

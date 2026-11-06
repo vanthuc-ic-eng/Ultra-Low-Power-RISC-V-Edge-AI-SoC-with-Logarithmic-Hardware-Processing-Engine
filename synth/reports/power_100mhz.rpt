@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date             : Sat Nov  7 02:21:55 2026
+| Date             : Sat Nov  7 02:44:15 2026
 | Host             : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
 | Command          : report_power -file /workspace/projects/pulp_edge_ai_soc/synth/reports/power_100mhz.rpt
 | Design           : pulp_riscv_ai_soc_top
@@ -30,14 +30,14 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.203        |
+| Total On-Chip Power (W)  | 0.195        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.110        |
+| Dynamic (W)              | 0.103        |
 | Device Static (W)        | 0.092        |
 | Effective TJA (C/W)      | 11.5         |
-| Max Ambient (C)          | 82.7         |
-| Junction Temperature (C) | 27.3         |
+| Max Ambient (C)          | 82.8         |
+| Junction Temperature (C) | 27.2         |
 | Confidence Level         | Medium       |
 | Setting File             | ---          |
 | Simulation Activity File | ---          |
@@ -52,18 +52,18 @@ Table of Contents
 +--------------------------+-----------+----------+-----------+-----------------+
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
-| Clocks                   |     0.006 |        3 |       --- |             --- |
-| Slice Logic              |     0.018 |     6193 |       --- |             --- |
-|   LUT as Logic           |     0.017 |     3080 |     17600 |           17.50 |
+| Clocks                   |     0.007 |        3 |       --- |             --- |
+| Slice Logic              |     0.016 |     6391 |       --- |             --- |
+|   LUT as Logic           |     0.015 |     3020 |     17600 |           17.16 |
 |   CARRY4                 |    <0.001 |      196 |      4400 |            4.45 |
-|   Register               |    <0.001 |     2010 |     35200 |            5.71 |
-|   F7/F8 Muxes            |    <0.001 |      389 |     17600 |            2.21 |
+|   Register               |    <0.001 |     2149 |     35200 |            6.11 |
+|   F7/F8 Muxes            |    <0.001 |      431 |     17600 |            2.45 |
 |   LUT as Distributed RAM |    <0.001 |      192 |      6000 |            3.20 |
-|   Others                 |     0.000 |       20 |       --- |             --- |
-| Signals                  |     0.032 |     4711 |       --- |             --- |
-| Block RAM                |     0.054 |       26 |        60 |           43.33 |
+|   Others                 |     0.000 |       22 |       --- |             --- |
+| Signals                  |     0.029 |     4730 |       --- |             --- |
+| Block RAM                |     0.051 |       26 |        60 |           43.33 |
 | Static Power             |     0.092 |          |           |                 |
-| Total                    |     0.203 |          |           |                 |
+| Total                    |     0.195 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -73,7 +73,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint    |       1.000 |     0.110 |       0.106 |      0.004 |       NA    | Unspecified | NA         |
+| Vccint    |       1.000 |     0.103 |       0.098 |      0.004 |       NA    | Unspecified | NA         |
 | Vccaux    |       1.800 |     0.005 |       0.000 |      0.005 |       NA    | Unspecified | NA         |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -82,7 +82,7 @@ Table of Contents
 | Vcco135   |       1.350 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco12    |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vccaux_io |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
-| Vccbram   |       1.000 |     0.006 |       0.004 |      0.001 |       NA    | Unspecified | NA         |
+| Vccbram   |       1.000 |     0.005 |       0.004 |      0.001 |       NA    | Unspecified | NA         |
 | MGTAVcc   |       1.000 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | MGTAVtt   |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | MGTVccaux |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -149,13 +149,13 @@ Table of Contents
 +------------------------+-----------+
 | Name                   | Power (W) |
 +------------------------+-----------+
-| pulp_riscv_ai_soc_top  |     0.110 |
-|   u_cpu                |     0.026 |
-|   u_hwpe_subsystem     |     0.078 |
-|     u_hwpe             |     0.078 |
-|       u_act_mem        |     0.004 |
+| pulp_riscv_ai_soc_top  |     0.103 |
+|   u_cpu                |     0.022 |
+|   u_hwpe_subsystem     |     0.077 |
+|     u_hwpe             |     0.077 |
+|       u_act_mem        |     0.003 |
 |       u_compute_engine |     0.013 |
-|       u_stream_ctrl    |     0.008 |
+|       u_stream_ctrl    |     0.007 |
 |       u_weight_mem     |     0.053 |
 +------------------------+-----------+
 

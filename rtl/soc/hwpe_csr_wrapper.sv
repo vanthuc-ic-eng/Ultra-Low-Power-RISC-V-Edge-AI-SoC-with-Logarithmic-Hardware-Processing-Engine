@@ -92,25 +92,29 @@ module hwpe_csr_wrapper #(
         end
     end
 
-    // CSR Read Multiplexer
-    always_comb begin
-        if (req_i && !we_i) begin
-            if (is_csr_addr) begin
-                case (addr_i[5:2])
-                    4'h0: rdata_o = {31'd0, hwpe_start};
-                    4'h1: rdata_o = {29'd0, irq_pending_q, done_latched_q, hwpe_busy};
-                    4'h2: rdata_o = {28'd0, pred_class_latched_q};
-                    4'h3: rdata_o = best_logit_latched_q;
-                    4'h4: rdata_o = cycle_count_latched_q;
-                    default: rdata_o = 32'd0;
-                endcase
-            end else begin
-                rdata_o = 32'd0;
-            end
-            valid_o = 1'b1;
+    // CSR Read Synchronous Registration (1-cycle read latency)
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            valid_o <= 1'b0;
+            rdata_o <= 32'd0;
         end else begin
-            rdata_o = 32'd0;
-            valid_o = req_i && we_i;
+            valid_o <= req_i;
+            if (req_i && !we_i) begin
+                if (is_csr_addr) begin
+                    case (addr_i[5:2])
+                        4'h0: rdata_o <= {31'd0, hwpe_start};
+                        4'h1: rdata_o <= {29'd0, irq_pending_q, done_latched_q, hwpe_busy};
+                        4'h2: rdata_o <= {28'd0, pred_class_latched_q};
+                        4'h3: rdata_o <= best_logit_latched_q;
+                        4'h4: rdata_o <= cycle_count_latched_q;
+                        default: rdata_o <= 32'd0;
+                    endcase
+                end else begin
+                    rdata_o <= 32'd0;
+                end
+            end else begin
+                rdata_o <= 32'd0;
+            end
         end
     end
 

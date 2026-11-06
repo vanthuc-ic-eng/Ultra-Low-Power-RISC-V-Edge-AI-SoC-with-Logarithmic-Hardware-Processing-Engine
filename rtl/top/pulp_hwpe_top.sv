@@ -66,6 +66,7 @@ module pulp_hwpe_top #(
 
     // Stream Controller <-> Argmax Unit
     logic         argmax_clr;
+    logic         argmax_step1;
     logic         argmax_update;
     logic [1:0]   argmax_grp;
 
@@ -125,6 +126,7 @@ module pulp_hwpe_top #(
         .pe_valid_o(pe_valid),
         .pe_sel_l2_o(pe_sel_l2),
         .argmax_clr_o(argmax_clr),
+        .argmax_step1_o(argmax_step1),
         .argmax_update_o(argmax_update),
         .argmax_grp_o(argmax_grp)
     );
@@ -196,6 +198,7 @@ module pulp_hwpe_top #(
         .clk(clk),
         .rst_n(rst_n),
         .clr_i(argmax_clr),
+        .step1_i(argmax_step1),
         .update_i(argmax_update),
         .grp_i(argmax_grp),
         .logit0_i(pe_acc_out[31:0]),

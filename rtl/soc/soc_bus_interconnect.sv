@@ -70,6 +70,7 @@ module soc_bus_interconnect (
     } target_e;
 
     target_e target_sel;
+    target_e target_sel_q;
 
     always_comb begin
         case (cpu_daddr_i[31:28])
@@ -79,6 +80,15 @@ module soc_bus_interconnect (
             4'h5: target_sel = SEL_UART;
             default: target_sel = SEL_ROM;
         endcase
+    end
+
+    // Latch requested slave for response multiplexing in next cycle
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            target_sel_q <= SEL_ROM;
+        end else if (cpu_dreq_i) begin
+            target_sel_q <= target_sel;
+        end
     end
 
     // Forward Request Signals
@@ -102,9 +112,9 @@ module soc_bus_interconnect (
     assign uart_we_o    = cpu_dwe_i;
     assign uart_req_o   = cpu_dreq_i && (target_sel == SEL_UART);
 
-    // Response Multiplexer
+    // Response Multiplexer (using registered target_sel_q to break false path from ALU)
     always_comb begin
-        case (target_sel)
+        case (target_sel_q)
             SEL_ROM: begin
                 cpu_drdata_o = rom_rdata_i;
                 cpu_dvalid_o = rom_valid_i;

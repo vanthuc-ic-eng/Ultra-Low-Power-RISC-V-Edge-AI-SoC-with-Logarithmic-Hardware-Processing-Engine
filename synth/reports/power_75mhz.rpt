@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date             : Sat Nov  7 02:21:54 2026
+| Date             : Sat Nov  7 02:44:13 2026
 | Host             : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
 | Command          : report_power -file /workspace/projects/pulp_edge_ai_soc/synth/reports/power_75mhz.rpt
 | Design           : pulp_riscv_ai_soc_top
@@ -30,14 +30,14 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.175        |
+| Total On-Chip Power (W)  | 0.169        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.083        |
+| Dynamic (W)              | 0.077        |
 | Device Static (W)        | 0.092        |
 | Effective TJA (C/W)      | 11.5         |
-| Max Ambient (C)          | 83.0         |
-| Junction Temperature (C) | 27.0         |
+| Max Ambient (C)          | 83.1         |
+| Junction Temperature (C) | 26.9         |
 | Confidence Level         | Medium       |
 | Setting File             | ---          |
 | Simulation Activity File | ---          |
@@ -53,17 +53,17 @@ Table of Contents
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
 | Clocks                   |     0.005 |        3 |       --- |             --- |
-| Slice Logic              |     0.013 |     6193 |       --- |             --- |
-|   LUT as Logic           |     0.013 |     3080 |     17600 |           17.50 |
+| Slice Logic              |     0.012 |     6391 |       --- |             --- |
+|   LUT as Logic           |     0.011 |     3020 |     17600 |           17.16 |
 |   CARRY4                 |    <0.001 |      196 |      4400 |            4.45 |
-|   Register               |    <0.001 |     2010 |     35200 |            5.71 |
-|   F7/F8 Muxes            |    <0.001 |      389 |     17600 |            2.21 |
+|   Register               |    <0.001 |     2149 |     35200 |            6.11 |
+|   F7/F8 Muxes            |    <0.001 |      431 |     17600 |            2.45 |
 |   LUT as Distributed RAM |    <0.001 |      192 |      6000 |            3.20 |
-|   Others                 |     0.000 |       20 |       --- |             --- |
-| Signals                  |     0.024 |     4711 |       --- |             --- |
-| Block RAM                |     0.040 |       26 |        60 |           43.33 |
+|   Others                 |     0.000 |       22 |       --- |             --- |
+| Signals                  |     0.021 |     4730 |       --- |             --- |
+| Block RAM                |     0.039 |       26 |        60 |           43.33 |
 | Static Power             |     0.092 |          |           |                 |
-| Total                    |     0.175 |          |           |                 |
+| Total                    |     0.169 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -73,7 +73,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint    |       1.000 |     0.084 |       0.079 |      0.004 |       NA    | Unspecified | NA         |
+| Vccint    |       1.000 |     0.078 |       0.074 |      0.004 |       NA    | Unspecified | NA         |
 | Vccaux    |       1.800 |     0.005 |       0.000 |      0.005 |       NA    | Unspecified | NA         |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -149,14 +149,14 @@ Table of Contents
 +------------------------+-----------+
 | Name                   | Power (W) |
 +------------------------+-----------+
-| pulp_riscv_ai_soc_top  |     0.083 |
-|   u_cpu                |     0.020 |
-|   u_hwpe_subsystem     |     0.059 |
+| pulp_riscv_ai_soc_top  |     0.077 |
+|   u_cpu                |     0.016 |
+|   u_hwpe_subsystem     |     0.058 |
 |     u_hwpe             |     0.058 |
 |       u_act_mem        |     0.003 |
 |       u_compute_engine |     0.010 |
-|       u_stream_ctrl    |     0.006 |
-|       u_weight_mem     |     0.040 |
+|       u_stream_ctrl    |     0.005 |
+|       u_weight_mem     |     0.039 |
 +------------------------+-----------+
 
 

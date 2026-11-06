@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date         : Sat Nov  7 02:21:51 2026
+| Date         : Sat Nov  7 02:44:11 2026
 | Host         : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
 | Command      : report_high_fanout_nets -max_nets 20 -file /workspace/projects/pulp_edge_ai_soc/synth/reports/high_fanout_nets.rpt
 | Design       : pulp_riscv_ai_soc_top
@@ -16,26 +16,26 @@ High Fan-out Nets Information
 +-----------------------------------------------------------------+--------+-------------+
 | Net Name                                                        | Fanout | Driver Type |
 +-----------------------------------------------------------------+--------+-------------+
-| u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[0].u_pe/rst_n_0 |    454 | LUT1        |
-| u_cpu/ADDRD[0]                                                  |    240 | LUT2        |
+| u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[2].u_pe/rst_n_0 |    594 | LUT1        |
 | u_cpu/ADDRD[1]                                                  |    240 | LUT2        |
-| u_cpu/ADDRD[2]                                                  |    240 | LUT2        |
-| u_cpu/ADDRD[4]                                                  |    240 | LUT2        |
 | u_cpu/ADDRD[3]                                                  |    240 | LUT2        |
+| u_cpu/ADDRD[4]                                                  |    240 | LUT2        |
 | u_cpu/ADDRD[5]                                                  |    240 | LUT2        |
+| u_cpu/ADDRD[2]                                                  |    240 | LUT2        |
+| u_cpu/ADDRD[0]                                                  |    240 | LUT2        |
 | u_hwpe_subsystem/u_hwpe/u_stream_ctrl/pe_clr_o                  |    239 | FDCE        |
+| u_cpu/Q[0]                                                      |    165 | FDCE        |
 | u_cpu/sel0[2]                                                   |    163 | FDCE        |
-| u_cpu/instr_q_reg[13]_3[0]                                      |    159 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[0]           |    155 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[4]           |    152 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[1]           |    151 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[5]           |    151 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[2]           |    150 | FDCE        |
-| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[3]           |    149 | FDCE        |
+| u_cpu/instr_q_reg_n_0_[2]                                       |    158 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[0]           |    156 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[1]           |    152 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[2]           |    151 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[4]           |    151 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[5]           |    150 | FDCE        |
+| u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l1_in_addr_o[3]           |    150 | FDCE        |
+| u_cpu/Q[1]                                                      |    146 | FDCE        |
 | u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l2_in_addr_o[0]           |    141 | FDCE        |
-| u_cpu/instr_q_reg_n_0_[22]                                      |    138 | FDCE        |
 | u_hwpe_subsystem/u_hwpe/u_stream_ctrl/l2_in_addr_o[1]           |    137 | FDCE        |
-| u_cpu/instr_q_reg_n_0_[12]                                      |    133 | FDCE        |
 +-----------------------------------------------------------------+--------+-------------+
 
 
