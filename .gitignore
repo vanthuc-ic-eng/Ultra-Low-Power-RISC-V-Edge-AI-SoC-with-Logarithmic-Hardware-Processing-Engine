@@ -3,15 +3,26 @@ sim/*.vvp
 sim/*.vcd
 sim/*.log
 
-# Vivado Synthesis & Implementation Artifacts
+# Vivado Synthesis, Implementation & Reports
 synth/*.log
 synth/*.jou
 synth/*.dcp
 synth/*.pb
 synth/clockInfo.txt
+synth/*.backup.*
 synth/.Xil/
+synth/reports/
 
-# Python Cache
+# Python Cache & Bytecode
 __pycache__/
+*/__pycache__/
+*/*/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+
+# OS & Editor Artifacts
+.DS_Store
+*.swp
+*.bak
+*~
