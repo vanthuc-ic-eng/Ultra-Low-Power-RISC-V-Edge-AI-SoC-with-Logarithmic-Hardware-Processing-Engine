@@ -42,7 +42,7 @@ module pulp_hwpe_top #(
     // ------------------------------------------------------------------------
     // Stream Controller <-> TCDM Weight Memory
     logic [13:0] w_addr;
-    logic [31:0] w_rdata;
+    logic [47:0] w_rdata;
 
     // Stream Controller <-> TCDM Activation Memory
     logic [9:0]  l1_in_addr;
@@ -138,7 +138,7 @@ module pulp_hwpe_top #(
         .clk(clk),
         .we_i(1'b0),
         .addr_i(w_addr),
-        .wdata_i(32'd0),
+        .wdata_i(48'd0),
         .rdata_o(w_rdata)
     );
 

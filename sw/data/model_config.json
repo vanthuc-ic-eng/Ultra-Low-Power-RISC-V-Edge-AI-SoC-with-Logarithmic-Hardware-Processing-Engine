@@ -1,8 +1,8 @@
 {
   "shift1": 11,
-  "fp32_acc": 97.57000000000001,
-  "int8_exact_acc": 93.73,
-  "approx_acc": 93.69,
+  "fp32_acc": 97.5,
+  "int8_exact_acc": 93.58999999999999,
+  "approx_acc": 93.61,
   "sample_labels": [
     0,
     1,

@@ -301,24 +301,9 @@ module riscv_core_rv32i #(
                         state_next = STATE_FETCH;
                     end
 
-                    7'b0000011: begin // LOAD
-                        if (data_valid_i) begin
-                            reg_write_en   = (rd != 5'd0);
-                            reg_write_data = load_data_formatted;
-                            pc_next        = pc_q + 32'd4;
-                            state_next     = STATE_FETCH;
-                        end else begin
-                            state_next     = STATE_MEM_WAIT;
-                        end
-                    end
-
+                    7'b0000011, // LOAD
                     7'b0100011: begin // STORE
-                        if (data_valid_i) begin
-                            pc_next        = pc_q + 32'd4;
-                            state_next     = STATE_FETCH;
-                        end else begin
-                            state_next     = STATE_MEM_WAIT;
-                        end
+                        state_next     = STATE_MEM_WAIT;
                     end
 
                     default: begin // NOP / Unsupported

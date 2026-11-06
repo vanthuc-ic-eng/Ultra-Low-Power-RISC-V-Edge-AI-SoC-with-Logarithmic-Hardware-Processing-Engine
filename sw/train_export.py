@@ -225,37 +225,46 @@ W2_padded[:, :10] = W2_int8
 b2_padded = np.zeros(12, dtype=np.int32)
 b2_padded[:10] = b2_int32
 
+def enc_weight_12b(w):
+    sa, za, la = enc(int(w))
+    za_bit = 1 if za else 0
+    val = ((sa & 1) << 10) | ((za_bit & 1) << 9) | (la & 0x1FF)
+    return val & 0xFFF
+
 weights_hex_path = os.path.join(DATA_DIR, "weights_tcdm.hex")
 with open(weights_hex_path, "w") as f:
-    # Layer 1 weights
+    # Layer 1 weights (48-bit per line: 4 x 12-bit pre-encoded log weights)
     for g in range(16):
         for k in range(784):
-            w0 = W1_int8[k, g*4 + 0] & 0xFF
-            w1 = W1_int8[k, g*4 + 1] & 0xFF
-            w2 = W1_int8[k, g*4 + 2] & 0xFF
-            w3 = W1_int8[k, g*4 + 3] & 0xFF
-            word32 = (w3 << 24) | (w2 << 16) | (w1 << 8) | w0
-            f.write(f"{word32:08x}\n")
-    # Layer 2 weights
+            w0 = enc_weight_12b(W1_int8[k, g*4 + 0])
+            w1 = enc_weight_12b(W1_int8[k, g*4 + 1])
+            w2 = enc_weight_12b(W1_int8[k, g*4 + 2])
+            w3 = enc_weight_12b(W1_int8[k, g*4 + 3])
+            word48 = (w3 << 36) | (w2 << 24) | (w1 << 12) | w0
+            f.write(f"{word48:012x}\n")
+    # Layer 2 weights (48-bit per line)
     for g in range(3):
         for k in range(64):
-            w0 = W2_padded[k, g*4 + 0] & 0xFF
-            w1 = W2_padded[k, g*4 + 1] & 0xFF
-            w2 = W2_padded[k, g*4 + 2] & 0xFF
-            w3 = W2_padded[k, g*4 + 3] & 0xFF
-            word32 = (w3 << 24) | (w2 << 16) | (w1 << 8) | w0
-            f.write(f"{word32:08x}\n")
+            w0 = enc_weight_12b(W2_padded[k, g*4 + 0])
+            w1 = enc_weight_12b(W2_padded[k, g*4 + 1])
+            w2 = enc_weight_12b(W2_padded[k, g*4 + 2])
+            w3 = enc_weight_12b(W2_padded[k, g*4 + 3])
+            word48 = (w3 << 36) | (w2 << 24) | (w1 << 12) | w0
+            f.write(f"{word48:012x}\n")
+    # Pad to 16384 words to prevent simulator warnings
+    for _ in range(16384 - (16*784 + 3*64)):
+        f.write("000000000000\n")
 
 # Biases
 biases_l1_hex = os.path.join(DATA_DIR, "biases_l1.hex")
 with open(biases_l1_hex, "w") as f:
     for b in b1_int32:
-        f.write(f"{b & 0xFFFFFFFF:08x}\n")
+        f.write(f"{int(b) & 0xFFFFFFFF:08x}\n")
 
 biases_l2_hex = os.path.join(DATA_DIR, "biases_l2.hex")
 with open(biases_l2_hex, "w") as f:
     for b in b2_padded:
-        f.write(f"{b & 0xFFFFFFFF:08x}\n")
+        f.write(f"{int(b) & 0xFFFFFFFF:08x}\n")
 
 # Export Sample Test Images (one for each digit 0..9)
 samples_hex = os.path.join(DATA_DIR, "sample_images.hex")
@@ -269,14 +278,15 @@ with open(samples_hex, "w") as f:
         img = X_test_int8[idx] # 784 bytes
         f.write(f"// Image {s_i}: Label = {y_test[idx]}, Index = {idx}\n")
         for px in img:
-            f.write(f"{px & 0xFF:02x}\n")
+            f.write(f"{int(px) & 0xFF:02x}\n")
 
-# Also save 1 dedicated test image (first image, digit 7)
-single_test_hex = os.path.join(DATA_DIR, "test_image_digit7.hex")
-with open(single_test_hex, "w") as f:
-    img7 = X_test_int8[sample_indices[7]] # digit 7
-    for px in img7:
-        f.write(f"{px & 0xFF:02x}\n")
+# Export dedicated test images for each digit 0..9
+for digit in range(10):
+    digit_hex_path = os.path.join(DATA_DIR, f"test_image_digit{digit}.hex")
+    with open(digit_hex_path, "w") as f:
+        img_d = X_test_int8[sample_indices[digit]]
+        for px in img_d:
+            f.write(f"{int(px) & 0xFF:02x}\n")
 
 # Save summary config
 cfg_path = os.path.join(DATA_DIR, "model_config.json")
