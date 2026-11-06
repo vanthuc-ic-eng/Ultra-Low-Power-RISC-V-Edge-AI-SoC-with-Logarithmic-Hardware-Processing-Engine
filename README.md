@@ -27,6 +27,7 @@ Dự án được gắn thẻ (release tags) rõ ràng để minh chứng tiến
 | :---: | :--- | :--- |
 | **`v0.0.0`** | **Baseline Mini-PULP SoC** | SoC ban đầu với mảng 1x4 PE tích hợp mạch nhân `lutalm_mul_s8` đầy đủ (mỗi PE tự chạy encoder cho cả activation và weight). |
 | **`v0.1.0`** | **LA-HWPE V2 Extreme SIMD Core** | • **Pre-encoded Log-Weights:** Trọng số được tính sẵn ở miền logarit trong BRAM 48-bit (xóa bỏ 4 bộ encoder trong PE).<br>• **Shared Activation Encoder:** Điểm ảnh được mã hóa logarit 1 lần duy nhất rồi broadcast cho cả 4 PE.<br>• **Lõi PE Siêu Nhẹ:** Chỉ còn bộ cộng 9-bit + Antilog + Accumulator 32-bit.<br>• **Timing Fix:** Ngắt đường trễ 20 tầng logic trong CPU RV32I. |
+| **`v0.2.0`** | **Pipelined Datapath & Physical Timing Sign-Off** | • **Pipelined PE MAC Datapath:** Chèn thanh ghi đường ống giữa bộ nhân logarit (`lutalm_core_mul_s8`) và bộ tích lũy 32-bit (`acc_o`). HWPE đạt tiềm năng $F_{max} > 180$ MHz.<br>• **2-Stage Binary Tree Argmax:** Tách khối tìm nhãn cực đại 4 ngõ vào song song thành đường ống 2 chu kỳ.<br>• **CPU Decode Register Latching:** Chốt thanh ghi `rs1_data_q` / `rs2_data_q` tại `STATE_DECODE`, cắt rời bộ dồn kênh 32:1 ra khỏi chu kỳ ALU.<br>• **Post-Route Timing Sign-Off:** Ký kết vật lý đạt chuẩn tại **100.0 MHz** (WNS = **+1.408 ns**, 0 lỗi vi phạm) trên Xilinx Zynq-7010, $F_{max}$ đạt **116.39 MHz**.<br>• **Công suất cực thấp:** 65.0 mW dynamic power, tiêu thụ chỉ **8.32 µJ / inference**. |
 
 ---
 
@@ -68,17 +69,20 @@ Hệ thống sẽ mở giao diện Web tại `http://localhost:8080/`:
 
 ---
 
-## 5. Thống Kê PPA Thực Tế Trên FPGA (AMD Xilinx Zynq-7000 `xc7z010`)
+## 5. Thống Kê PPA Thực Tế Trên FPGA (AMD Xilinx Zynq-7000 `xc7z010-1`)
 
-| Chỉ số PPA | Giá trị thực tế | Tỷ lệ sử dụng | Đánh giá |
-| :--- | :---: | :---: | :--- |
-| **Slice LUTs** | **3,272** | **18.59%** (3,272 / 17,600) | Cực kỳ gọn, dư 81.4% diện tích chip |
-| **Slice Registers** | **2,010** | **5.71%** (2,010 / 35,200) | Rất thấp |
-| **Block RAM (RAMB36E1)** | **26** | **43.33%** (26 / 60) | Chứa trọn 51 KB weights 48-bit |
-| **Khối cứng DSP48E1** | **0** | **0.00%** (0 / 80) | **Zero-DSP tuyệt đối!** |
-| **Xung nhịp hệ thống** | **100.0 MHz** | - | Chu kỳ 10.0 ns |
-| **Thời gian suy luận** | **$127.90\ \mu\text{s}$** | - | $12,790$ chu kỳ clock |
-| **Thông lượng xử lý** | **$7,819\text{ FPS}$** | - | Bỏ xa camera 30-60 FPS |
-| **Công suất động** | **$110\text{ mW}$** | - | Siêu mát (Junction Temp 27.3 °C) |
-| **Năng lượng / Lần đoán** | **$14.07\ \mu\text{J}$** | - | Đạt chuẩn thế giới về TinyML |
-| **Độ chính xác (10k ảnh)** | **$93.61\% - 93.69\%$**| - | Độ lệch so với mạch chuẩn chỉ 0.04% |
+Kết quả tổng hợp và Place & Route vật lý hoàn chỉnh từ AMD Vivado 2024.2:
+
+| Chỉ số PPA | Giá trị thực tế | Giới hạn Zynq-7010 | Tỷ lệ sử dụng | Nhận xét chuyên môn |
+| :--- | :---: | :---: | :---: | :--- |
+| **Slice LUTs** | **2,958** | 17,600 | **16.81%** | Cực kỳ gọn nhẹ, còn trống 83.19% diện tích chip |
+| **Slice Registers (FF)** | **2,280** | 35,200 | **6.48%** | Logic đường ống gọn gàng, cân bằng tải cao |
+| **Block RAM (RAMB36E1)** | **26** | 60 | **43.33%** | Chứa trọn 51 KB TCDM on-chip, 0 cần DRAM ngoài |
+| **Khối cứng DSP48E1** | **0** | 80 | **0.00%** | **ZERO-DSP TUYỆT ĐỐI (100% tài nguyên DSP tự do)** |
+| **Xung nhịp ký kết an toàn** | **100.0 MHz** | - | - | ✅ **Timing Met: WNS = +1.408 ns (0 vi phạm)** |
+| **Tần số tối đa ($F_{max}$)** | **116.39 MHz** | - | - | Giới hạn bởi đường CPU fabric writeback |
+| **Thời gian suy luận (Latency)**| **$127.96\ \mu\text{s}$** | - | - | $12,796$ chu kỳ clock / ảnh |
+| **Thông lượng xử lý (FPS)** | **$7,815\text{ FPS}$** | - | - | Nhanh gấp ~130 lần chuẩn video 60 FPS |
+| **Công suất động (Dynamic)** | **$65.0\text{ mW}$** | - | - | Tiết kiệm vượt trội (Junction Temp 26.8 °C) |
+| **Năng lượng / Lần đoán** | **$8.32\ \mu\text{J}$** | - | - | **Chuẩn Ultra-Low-Power TinyML thế giới** |
+| **Độ chính xác (MNIST 10k)** | **$93.61\%$** | - | - | Tương đương INT8 toán học lý tưởng (93.59%) |

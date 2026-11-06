@@ -67,6 +67,8 @@ module riscv_core_rv32i #(
 
     logic [31:0] rs1_data;
     logic [31:0] rs2_data;
+    logic [31:0] rs1_data_q;
+    logic [31:0] rs2_data_q;
     logic [31:0] imm_i;
     logic [31:0] imm_s;
     logic [31:0] imm_b;
@@ -112,16 +114,16 @@ module riscv_core_rv32i #(
     always_comb begin
         case (opcode)
             7'b0110011: begin // Register-Register (ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU)
-                alu_op_a = rs1_data;
-                alu_op_b = rs2_data;
+                alu_op_a = rs1_data_q;
+                alu_op_b = rs2_data_q;
             end
             7'b0010011: begin // Immediate (ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU)
-                alu_op_a = rs1_data;
+                alu_op_a = rs1_data_q;
                 alu_op_b = imm_i;
             end
             7'b0000011, // Load (LW, LH, LHU, LB, LBU)
             7'b0100011: begin // Store (SW, SH, SB)
-                alu_op_a = rs1_data;
+                alu_op_a = rs1_data_q;
                 alu_op_b = (opcode == 7'b0000011) ? imm_i : imm_s;
             end
             7'b0110111: begin // LUI
@@ -133,7 +135,7 @@ module riscv_core_rv32i #(
                 alu_op_b = imm_u;
             end
             default: begin
-                alu_op_a = rs1_data;
+                alu_op_a = rs1_data_q;
                 alu_op_b = imm_i;
             end
         endcase
@@ -174,12 +176,12 @@ module riscv_core_rv32i #(
     // ------------------------------------------------------------------------
     always_comb begin
         case (funct3)
-            3'b000: branch_taken = (rs1_data == rs2_data); // BEQ
-            3'b001: branch_taken = (rs1_data != rs2_data); // BNE
-            3'b100: branch_taken = ($signed(rs1_data) < $signed(rs2_data)); // BLT
-            3'b101: branch_taken = ($signed(rs1_data) >= $signed(rs2_data)); // BGE
-            3'b110: branch_taken = (rs1_data < rs2_data); // BLTU
-            3'b111: branch_taken = (rs1_data >= rs2_data); // BGEU
+            3'b000: branch_taken = (rs1_data_q == rs2_data_q); // BEQ
+            3'b001: branch_taken = (rs1_data_q != rs2_data_q); // BNE
+            3'b100: branch_taken = ($signed(rs1_data_q) < $signed(rs2_data_q)); // BLT
+            3'b101: branch_taken = ($signed(rs1_data_q) >= $signed(rs2_data_q)); // BGE
+            3'b110: branch_taken = (rs1_data_q < rs2_data_q); // BLTU
+            3'b111: branch_taken = (rs1_data_q >= rs2_data_q); // BGEU
             default: branch_taken = 1'b0;
         endcase
     end
@@ -213,15 +215,15 @@ module riscv_core_rv32i #(
         case (funct3[1:0])
             2'b00: begin // SB
                 data_be_comb = 4'b0001 << alu_result[1:0];
-                data_wdata_comb = {4{rs2_data[7:0]}};
+                data_wdata_comb = {4{rs2_data_q[7:0]}};
             end
             2'b01: begin // SH
                 data_be_comb = alu_result[1] ? 4'b1100 : 4'b0011;
-                data_wdata_comb = {2{rs2_data[15:0]}};
+                data_wdata_comb = {2{rs2_data_q[15:0]}};
             end
             default: begin // SW (2'b10)
                 data_be_comb = 4'b1111;
-                data_wdata_comb = rs2_data;
+                data_wdata_comb = rs2_data_q;
             end
         endcase
     end
@@ -306,7 +308,7 @@ module riscv_core_rv32i #(
                     7'b1100111: begin // JALR
                         reg_write_en   = (rd != 5'd0);
                         reg_write_data = pc_q + 32'd4;
-                        pc_next        = (rs1_data + imm_i) & ~32'd1;
+                        pc_next        = (rs1_data_q + imm_i) & ~32'd1;
                         state_next     = STATE_FETCH;
                     end
 
@@ -350,6 +352,8 @@ module riscv_core_rv32i #(
             state         <= STATE_FETCH;
             pc_q          <= BOOT_ADDR;
             instr_q       <= 32'h0000_0013; // NOP (addi x0, x0, 0)
+            rs1_data_q    <= 32'd0;
+            rs2_data_q    <= 32'd0;
             byte_offset_q <= 2'b00;
             data_addr_q   <= 32'd0;
             data_wdata_q  <= 32'd0;
@@ -359,6 +363,11 @@ module riscv_core_rv32i #(
         end else begin
             state <= state_next;
             pc_q  <= pc_next;
+
+            if (state == STATE_DECODE) begin
+                rs1_data_q <= (rs1 == 5'd0) ? 32'd0 : regfile[rs1];
+                rs2_data_q <= (rs2 == 5'd0) ? 32'd0 : regfile[rs2];
+            end
 
             if (state == STATE_EXECUTE) begin
                 byte_offset_q <= alu_result[1:0];

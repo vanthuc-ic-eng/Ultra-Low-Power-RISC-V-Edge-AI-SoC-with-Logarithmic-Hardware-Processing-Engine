@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date         : Sat Nov  7 02:44:10 2026
+| Date         : Sat Nov  7 03:02:41 2026
 | Host         : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
 | Command      : report_drc -file /workspace/projects/pulp_edge_ai_soc/synth/reports/drc.rpt
 | Design       : pulp_riscv_ai_soc_top
@@ -24,11 +24,11 @@ Table of Contents
       Design limits: <entire design considered>
            Ruledeck: default
              Max checks: <unlimited>
-             Checks found: 24
+             Checks found: 25
 +-----------+----------+----------------------------+--------+
 | Rule      | Severity | Description                | Checks |
 +-----------+----------+----------------------------+--------+
-| CHECK-3   | Warning  | Report rule limit reached  | 1      |
+| CHECK-3   | Warning  | Report rule limit reached  | 2      |
 | RBOR-1    | Warning  | RAMB output registers      | 1      |
 | REQP-1839 | Warning  | RAMB36 async control check | 20     |
 | RTSTAT-10 | Warning  | No routable loads          | 1      |
@@ -42,9 +42,14 @@ Report rule limit reached
 REQP-1839 rule limit reached: 20 violations have been found.
 Related violations: <none>
 
+CHECK-3#2 Warning
+Report rule limit reached  
+REQP-1839 rule limit reached: 20 violations have been found.
+Related violations: <none>
+
 RBOR-1#1 Warning
 RAMB output registers  
-RAMB rom_drdata_reg output DOB (24) is connected to asynchronous registers, if you use synchronous controls you will get better results both in area and delay (RAMB has synchronous registers built in).
+RAMB rom_drdata_reg output DOB (26) is connected to asynchronous registers, if you use synchronous controls you will get better results both in area and delay (RAMB has synchronous registers built in).
 Related violations: <none>
 
 REQP-1839#1 Warning

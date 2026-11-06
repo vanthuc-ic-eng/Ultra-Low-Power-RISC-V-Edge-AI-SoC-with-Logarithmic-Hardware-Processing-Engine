@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date         : Sat Nov  7 02:44:07 2026
+| Date         : Sat Nov  7 03:02:38 2026
 | Host         : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
 | Command      : report_timing -nworst 1 -max_paths 1 -file /workspace/projects/pulp_edge_ai_soc/synth/reports/critical_path.rpt
 | Design       : pulp_riscv_ai_soc_top
@@ -12,18 +12,18 @@ Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanc
 
 Timing Report
 
-Slack (VIOLATED) :        -1.636ns  (required time - arrival time)
-  Source:                 u_hwpe_subsystem/u_hwpe/u_act_mem/l2_rdata_o_reg[0]/C
-                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
-  Destination:            u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/acc_o_reg[31]/D
-                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+Slack (VIOLATED) :        -3.037ns  (required time - arrival time)
+  Source:                 u_cpu/instr_q_reg[5]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@2.777ns period=5.555ns})
+  Destination:            u_cpu/regfile_reg[11][6]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@2.777ns period=5.555ns})
   Path Group:             clk
   Path Type:              Setup (Max at Slow Process Corner)
-  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
-  Data Path Delay:        11.614ns  (logic 4.670ns (40.212%)  route 6.944ns (59.788%))
-  Logic Levels:           20  (CARRY4=10 LUT2=1 LUT3=1 LUT4=1 LUT6=7)
+  Requirement:            5.555ns  (clk rise@5.555ns - clk rise@0.000ns)
+  Data Path Delay:        8.477ns  (logic 1.641ns (19.359%)  route 6.836ns (80.641%))
+  Logic Levels:           8  (LUT5=1 LUT6=7)
   Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Destination Clock Delay (DCD):    0.924ns = ( 6.479 - 5.555 ) 
     Source Clock Delay      (SCD):    0.973ns
     Clock Pessimism Removal (CPR):    0.000ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -36,76 +36,42 @@ Slack (VIOLATED) :        -1.636ns  (required time - arrival time)
   -------------------------------------------------------------------    -------------------
                          (clock clk rise edge)        0.000     0.000 r  
                                                       0.000     0.000 r  clk (IN)
-                         net (fo=2368, unset)         0.973     0.973    u_hwpe_subsystem/u_hwpe/u_act_mem/clk
-    SLICE_X14Y21         FDRE                                         r  u_hwpe_subsystem/u_hwpe/u_act_mem/l2_rdata_o_reg[0]/C
+                         net (fo=2499, unset)         0.973     0.973    u_cpu/clk
+    SLICE_X24Y62         FDCE                                         r  u_cpu/instr_q_reg[5]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X14Y21         FDRE (Prop_fdre_C_Q)         0.456     1.429 f  u_hwpe_subsystem/u_hwpe/u_act_mem/l2_rdata_o_reg[0]/Q
-                         net (fo=5, routed)           0.609     2.038    u_hwpe_subsystem/u_hwpe/u_act_mem/l2_in_data[0]
-    SLICE_X15Y19         LUT3 (Prop_lut3_I0_O)        0.124     2.162 f  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_65/O
-                         net (fo=5, routed)           0.668     2.830    u_hwpe_subsystem/u_hwpe/u_act_mem/cur_act[0]
-    SLICE_X15Y19         LUT6 (Prop_lut6_I2_O)        0.124     2.954 f  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_64/O
-                         net (fo=2, routed)           0.358     3.312    u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_64_n_0
-    SLICE_X14Y19         LUT6 (Prop_lut6_I2_O)        0.124     3.436 r  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_55/O
-                         net (fo=1, routed)           0.162     3.598    u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_55_n_0
-    SLICE_X14Y19         LUT6 (Prop_lut6_I5_O)        0.124     3.722 r  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_40/O
-                         net (fo=14, routed)          0.555     4.277    u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_40_n_0
-    SLICE_X15Y19         LUT4 (Prop_lut4_I1_O)        0.124     4.401 f  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_30/O
-                         net (fo=13, routed)          0.659     5.060    u_hwpe_subsystem/u_hwpe/u_act_mem/u_compute_engine/log_a_i[8]
-    SLICE_X14Y17         LUT6 (Prop_lut6_I2_O)        0.124     5.184 r  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_54/O
-                         net (fo=4, routed)           0.666     5.850    u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_54_n_0
-    SLICE_X13Y20         LUT6 (Prop_lut6_I4_O)        0.124     5.974 r  u_hwpe_subsystem/u_hwpe/u_act_mem/acc_o[3]_i_35__0/O
-                         net (fo=1, routed)           0.000     5.974    u_hwpe_subsystem/u_hwpe/u_weight_mem/S[0]
-    SLICE_X13Y20         CARRY4 (Prop_carry4_S[0]_O[2])
-                                                      0.547     6.521 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[3]_i_23__1/O[2]
-                         net (fo=19, routed)          1.315     7.836    u_hwpe_subsystem/u_hwpe/u_weight_mem/mem_reg_21_1[0]
-    SLICE_X14Y21         LUT6 (Prop_lut6_I0_O)        0.302     8.138 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o[3]_i_20__2/O
-                         net (fo=2, routed)           0.290     8.429    u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o[3]_i_20__2_n_0
-    SLICE_X14Y21         LUT6 (Prop_lut6_I5_O)        0.124     8.553 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o[3]_i_11__2/O
-                         net (fo=2, routed)           0.609     9.162    u_hwpe_subsystem/u_hwpe/u_weight_mem/u_compute_engine/base_w[0]
-    SLICE_X12Y21         CARRY4 (Prop_carry4_DI[0]_CO[3])
-                                                      0.550     9.712 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[3]_i_9__2/CO[3]
-                         net (fo=1, routed)           0.000     9.712    u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[3]_i_9__2_n_0
-    SLICE_X12Y22         CARRY4 (Prop_carry4_CI_CO[3])
-                                                      0.117     9.829 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[7]_i_10__2/CO[3]
-                         net (fo=1, routed)           0.000     9.829    u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[7]_i_10__2_n_0
-    SLICE_X12Y23         CARRY4 (Prop_carry4_CI_O[1])
-                                                      0.323    10.152 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o_reg[11]_i_10__2/O[1]
-                         net (fo=2, routed)           0.423    10.575    u_hwpe_subsystem/u_hwpe/u_weight_mem/signed_mag_w[9]
-    SLICE_X13Y22         LUT2 (Prop_lut2_I0_O)        0.306    10.881 r  u_hwpe_subsystem/u_hwpe/u_weight_mem/acc_o[11]_i_3__2/O
-                         net (fo=1, routed)           0.619    11.500    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[14]_2[2]
-    SLICE_X11Y20         CARRY4 (Prop_carry4_DI[2]_CO[3])
-                                                      0.398    11.898 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[11]_i_1__2/CO[3]
-                         net (fo=1, routed)           0.000    11.898    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[11]_i_1__2_n_0
-    SLICE_X11Y21         CARRY4 (Prop_carry4_CI_CO[3])
-                                                      0.114    12.012 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[15]_i_1__2/CO[3]
-                         net (fo=1, routed)           0.000    12.012    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[15]_i_1__2_n_0
-    SLICE_X11Y22         CARRY4 (Prop_carry4_CI_CO[3])
-                                                      0.114    12.127 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[19]_i_1__2/CO[3]
-                         net (fo=1, routed)           0.000    12.127    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[19]_i_1__2_n_0
-    SLICE_X11Y23         CARRY4 (Prop_carry4_CI_CO[3])
-                                                      0.114    12.241 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[23]_i_1__2/CO[3]
-                         net (fo=1, routed)           0.000    12.241    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[23]_i_1__2_n_0
-    SLICE_X11Y24         CARRY4 (Prop_carry4_CI_CO[3])
-                                                      0.114    12.355 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[27]_i_1__2/CO[3]
-                         net (fo=1, routed)           0.009    12.364    u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[27]_i_1__2_n_0
-    SLICE_X11Y25         CARRY4 (Prop_carry4_CI_O[0])
-                                                      0.223    12.587 r  u_hwpe_subsystem/u_hwpe/u_stream_ctrl/acc_o_reg[31]_i_1__2/O[0]
-                         net (fo=1, routed)           0.000    12.587    u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/acc_o_reg[31]_1[0]
-    SLICE_X11Y25         FDCE                                         r  u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/acc_o_reg[31]/D
+    SLICE_X24Y62         FDCE (Prop_fdce_C_Q)         0.478     1.451 f  u_cpu/instr_q_reg[5]/Q
+                         net (fo=201, routed)         0.695     2.146    u_cpu/p_0_in
+    SLICE_X23Y61         LUT6 (Prop_lut6_I5_O)        0.295     2.441 r  u_cpu/data_addr_q[30]_i_24/O
+                         net (fo=20, routed)          0.980     3.420    u_cpu/data_addr_q[30]_i_24_n_0
+    SLICE_X28Y64         LUT6 (Prop_lut6_I1_O)        0.124     3.544 r  u_cpu/regfile[30][14]_i_22/O
+                         net (fo=51, routed)          1.381     4.926    u_cpu/regfile[30][14]_i_22_n_0
+    SLICE_X25Y56         LUT6 (Prop_lut6_I3_O)        0.124     5.050 f  u_cpu/regfile[30][9]_i_22/O
+                         net (fo=3, routed)           0.543     5.593    u_cpu/regfile[30][9]_i_22_n_0
+    SLICE_X24Y56         LUT6 (Prop_lut6_I0_O)        0.124     5.717 f  u_cpu/data_addr_q[7]_i_28/O
+                         net (fo=2, routed)           0.587     6.304    u_cpu/data_addr_q[7]_i_28_n_0
+    SLICE_X25Y56         LUT5 (Prop_lut5_I0_O)        0.124     6.428 f  u_cpu/data_addr_q[6]_i_8/O
+                         net (fo=1, routed)           0.937     7.365    u_cpu/data_addr_q[6]_i_8_n_0
+    SLICE_X16Y54         LUT6 (Prop_lut6_I0_O)        0.124     7.489 f  u_cpu/data_addr_q[6]_i_4/O
+                         net (fo=1, routed)           0.403     7.892    u_cpu/data_addr_q[6]_i_4_n_0
+    SLICE_X17Y54         LUT6 (Prop_lut6_I2_O)        0.124     8.016 r  u_cpu/data_addr_q[6]_i_1/O
+                         net (fo=2, routed)           0.303     8.319    u_cpu/data0[6]
+    SLICE_X15Y54         LUT6 (Prop_lut6_I3_O)        0.124     8.443 r  u_cpu/regfile[30][6]_i_1/O
+                         net (fo=31, routed)          1.007     9.450    u_cpu/regfile[30][6]_i_1_n_0
+    SLICE_X10Y52         FDRE                                         r  u_cpu/regfile_reg[11][6]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)       10.000    10.000 r  
-                                                      0.000    10.000 r  clk (IN)
-                         net (fo=2368, unset)         0.924    10.924    u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/clk
-    SLICE_X11Y25         FDCE                                         r  u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/acc_o_reg[31]/C
-                         clock pessimism              0.000    10.924    
-                         clock uncertainty           -0.035    10.889    
-    SLICE_X11Y25         FDCE (Setup_fdce_C_D)        0.062    10.951    u_hwpe_subsystem/u_hwpe/u_compute_engine/gen_pe[3].u_pe/acc_o_reg[31]
+                         (clock clk rise edge)        5.555     5.555 r  
+                                                      0.000     5.555 r  clk (IN)
+                         net (fo=2499, unset)         0.924     6.479    u_cpu/clk
+    SLICE_X10Y52         FDRE                                         r  u_cpu/regfile_reg[11][6]/C
+                         clock pessimism              0.000     6.479    
+                         clock uncertainty           -0.035     6.444    
+    SLICE_X10Y52         FDRE (Setup_fdre_C_D)       -0.031     6.413    u_cpu/regfile_reg[11][6]
   -------------------------------------------------------------------
-                         required time                         10.951    
-                         arrival time                         -12.587    
+                         required time                          6.413    
+                         arrival time                          -9.450    
   -------------------------------------------------------------------
-                         slack                                 -1.636    
+                         slack                                 -3.037    
 
 
 

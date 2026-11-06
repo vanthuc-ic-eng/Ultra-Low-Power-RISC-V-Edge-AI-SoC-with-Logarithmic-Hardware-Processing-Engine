@@ -62,14 +62,39 @@ module pe_mac #(
         .p_o      ( prod_w        )
     );
 
-    // 32-bit Accumulator logic (SystemVerilog always_ff)
+    // ------------------------------------------------------------------------
+    // Pipeline Registers between Multiplier Core and Accumulator (Stage 1 -> Stage 2)
+    // Decouples multiplier logarithm/antilog path from 32-bit adder chain for 180+ MHz
+    // ------------------------------------------------------------------------
+    logic signed [15:0] prod_q;
+    logic               valid_q;
+    logic               clr_q;
+    logic signed [31:0] bias_q;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            prod_q  <= 16'sd0;
+            valid_q <= 1'b0;
+            clr_q   <= 1'b0;
+            bias_q  <= 32'sd0;
+        end else begin
+            prod_q  <= prod_w;
+            valid_q <= valid_i;
+            clr_q   <= clr_i;
+            bias_q  <= bias_i;
+        end
+    end
+
+    // ------------------------------------------------------------------------
+    // Stage 2: 32-bit Accumulator logic (SystemVerilog always_ff)
+    // ------------------------------------------------------------------------
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             acc_o <= 32'sd0;
-        end else if (clr_i) begin
-            acc_o <= bias_i;
-        end else if (valid_i) begin
-            acc_o <= acc_o + 32'(signed'(prod_w));
+        end else if (clr_q) begin
+            acc_o <= bias_q;
+        end else if (valid_q) begin
+            acc_o <= acc_o + 32'(signed'(prod_q));
         end
     end
 

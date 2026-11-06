@@ -61,14 +61,14 @@ module hwpe_stream_ctrl #(
     logic [9:0] l1_k_q;       // 0..783
     logic [1:0] l2_grp_q;     // 0..2 (3 groups of 4 = 12 neurons)
     logic [5:0] l2_k_q;       // 0..63
-    logic       l2_drain_step_q; // 2-cycle pipelined drain for timing sign-off
+    logic [1:0] l2_drain_step_q; // 3-cycle pipelined drain for MAC & argmax timing sign-off
 
     // 1-cycle pipeline delay for synchronous BRAM read
     logic stream_valid_pipe;
 
     // Combinational Argmax Controls (2-stage pipelined)
-    assign argmax_step1_o  = (state_q == ST_L2_DRAIN && !l2_drain_step_q);
-    assign argmax_update_o = (state_q == ST_L2_DRAIN && l2_drain_step_q);
+    assign argmax_step1_o  = (state_q == ST_L2_DRAIN && (l2_drain_step_q == 2'd1));
+    assign argmax_update_o = (state_q == ST_L2_DRAIN && (l2_drain_step_q == 2'd2));
     assign argmax_grp_o    = l2_grp_q;
     assign argmax_clr_o    = (state_q == ST_IDLE && start_i);
 
@@ -139,7 +139,7 @@ module hwpe_stream_ctrl #(
             end
 
             ST_L2_DRAIN: begin
-                if (!l2_drain_step_q) begin
+                if (l2_drain_step_q != 2'd2) begin
                     state_d = ST_L2_DRAIN;
                 end else if (l2_grp_q == 2'd2) begin
                     state_d = ST_DONE;
@@ -167,7 +167,7 @@ module hwpe_stream_ctrl #(
             l1_k_q            <= 10'd0;
             l2_grp_q          <= 2'd0;
             l2_k_q            <= 6'd0;
-            l2_drain_step_q   <= 1'b0;
+            l2_drain_step_q   <= 2'd0;
             w_addr_o          <= 14'd0;
             l1_in_addr_o      <= 10'd0;
             l2_in_addr_o      <= 6'd0;
@@ -188,7 +188,7 @@ module hwpe_stream_ctrl #(
                 ST_IDLE: begin
                     l1_grp_q          <= 4'd0;
                     l2_grp_q          <= 2'd0;
-                    l2_drain_step_q   <= 1'b0;
+                    l2_drain_step_q   <= 2'd0;
                     stream_valid_pipe <= 1'b0;
                 end
 
@@ -248,10 +248,10 @@ module hwpe_stream_ctrl #(
 
                 ST_L2_DRAIN: begin
                     stream_valid_pipe <= 1'b0;
-                    if (!l2_drain_step_q) begin
-                        l2_drain_step_q <= 1'b1;
+                    if (l2_drain_step_q < 2'd2) begin
+                        l2_drain_step_q <= l2_drain_step_q + 2'd1;
                     end else begin
-                        l2_drain_step_q <= 1'b0;
+                        l2_drain_step_q <= 2'd0;
                         l2_grp_q        <= l2_grp_q + 2'd1;
                     end
                 end

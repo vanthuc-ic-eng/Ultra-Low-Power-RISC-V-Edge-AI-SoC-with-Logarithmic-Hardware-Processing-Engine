@@ -51,13 +51,13 @@ report_utilization -file "$rpt_dir/pnr_util.rpt"
 report_utilization -file "$rpt_dir/utilization.rpt"
 report_utilization -hierarchical -file "$rpt_dir/pnr_util_hierarchical.rpt"
 
-# B. Sign-Off Timing & Critical Path Analysis at 100 MHz
-report_timing_summary -delay_type min_max -max_paths 10 -file "$rpt_dir/pnr_timing_100mhz.rpt"
+# B. Sign-Off Timing & Critical Path Analysis at 180 MHz Constraint
+report_timing_summary -delay_type min_max -max_paths 10 -file "$rpt_dir/pnr_timing_180mhz.rpt"
 report_timing_summary -delay_type min_max -max_paths 10 -file "$rpt_dir/timing.rpt"
 report_timing -nworst 1 -max_paths 1 -file "$rpt_dir/critical_path.rpt"
 
-# C. Power Estimation at 100 MHz
-report_power -file "$rpt_dir/pnr_power_100mhz.rpt"
+# C. Power Estimation at 180 MHz
+report_power -file "$rpt_dir/pnr_power_180mhz.rpt"
 report_power -file "$rpt_dir/power.rpt"
 
 # D. Design Rule Check & Clock Trees
@@ -65,8 +65,8 @@ report_drc -file "$rpt_dir/drc.rpt"
 report_clock_utilization -file "$rpt_dir/clock_utilization.rpt"
 report_high_fanout_nets -max_nets 20 -file "$rpt_dir/high_fanout_nets.rpt"
 
-# E. Multi-frequency Timing & Power Sweep (50 MHz, 75 MHz, 100 MHz, 125 MHz)
-set freqs {50 75 100 125}
+# E. Multi-frequency Timing & Power Sweep (50 MHz to 200 MHz)
+set freqs {50 75 100 125 150 180 200}
 foreach f $freqs {
     set period [format "%.3f" [expr {1000.0 / $f}]]
     create_clock -period $period -name clk [get_ports clk]
