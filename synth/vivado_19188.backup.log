@@ -1,0 +1,35 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Thu Nov  5 22:35:29 2026
+# Process ID         : 19188
+# Current directory  : /home/nguyen-van-thuc
+# Command line       : vivado -mode batch -source /workspace/projects/pulp_edge_ai_soc/synth/run_synth.tcl -log /workspace/projects/pulp_edge_ai_soc/synth/vivado.log -journal /workspace/projects/pulp_edge_ai_soc/synth/vivado.jou
+# Log file           : /workspace/projects/pulp_edge_ai_soc/synth/vivado.log
+# Journal file       : /workspace/projects/pulp_edge_ai_soc/synth/vivado.jou
+# Running On         : ic-workstation
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.5 LTS
+# Processor Detail   : AMD Ryzen 7 6800HS with Radeon Graphics
+# CPU Frequency      : 3871.631 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 15977 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 20272 MB
+# Available Virtual  : 12511 MB
+#-----------------------------------------------------------
+source /workspace/projects/pulp_edge_ai_soc/synth/run_synth.tcl
+# set_param general.maxThreads 4
+# set proj_dir "/workspace/projects/pulp_edge_ai_soc"
+# set rpt_dir  "$proj_dir/synth/reports"
+# file mkdir $rpt_dir
+# create_project -in_memory -part xc7z010clg400-1
+# read_verilog [glob $proj_dir/rtl/core/*.v]
+# read_verilog [glob $proj_dir/rtl/memory/*.v]
+# read_verilog [glob $proj_dir/rtl/controller/*.v]
+# read_verilog [glob $proj_dir/rtl/top/*.v]
+ERROR: [Common 17-53] User Exception: No open design. Please open an elaborated, synthesized or implemented design before executing this command.
+INFO: [Common 17-206] Exiting Vivado at Thu Nov  5 22:35:34 2026...
