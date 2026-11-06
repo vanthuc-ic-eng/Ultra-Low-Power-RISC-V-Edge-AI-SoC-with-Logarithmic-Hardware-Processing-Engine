@@ -1,0 +1,17 @@
+# Build & Simulation Artifacts
+sim/*.vvp
+sim/*.vcd
+sim/*.log
+
+# Vivado Synthesis & Implementation Artifacts
+synth/*.log
+synth/*.jou
+synth/*.dcp
+synth/*.pb
+synth/clockInfo.txt
+synth/.Xil/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
