@@ -58,7 +58,7 @@ synth:
 	cd $(SYNTH_DIR) && vivado -mode batch -source run_synth.tcl
 
 report:
-	@python3 $(SW_DIR)/report_summary.py
+	@python3 $(SW_DIR)/parse_summary.py
 
 gui:
 	@echo "==> [GUI] Starting Live Demo Interactive Server..."
