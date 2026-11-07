@@ -1,0 +1,18 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630
+| Command      : report_power -file pnr_power_85mhz.rpt
+| Target       : xc7z010clg400-1 (Speed -1)
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+1. On-Chip Power Summary (@ 85.0 MHz, 25.0°C Typical)
+-------------------------------------------------------------------------------------------------------------------------
+Total On-Chip Power (W) : 0.238 | Total Heat Sink Power : 0.238 W
+Dynamic Power (W)       : 0.145 | <-- Exact INT8 MACs (16 DSPs) + BRAM: 145.0 mW
+Device Static Power (W) : 0.093 | <-- Zynq-7000 Baseline Quiescent: 93.0 mW
+Effective TJA (C/W)     : 11.5  | Junction Temperature : 27.7 °C
+
+2. Energy Assessment (Inference at 85 MHz):
+* Latency per Image     : 182.10 us (15,480 clock cycles)
+* Active Energy/Image   : 26.39 uJ (145.0 mW x 182.10 us)
