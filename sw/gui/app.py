@@ -241,6 +241,18 @@ HTML_PAGE = """<!DOCTYPE html>
                 <canvas id="cvs" width="280" height="280"></canvas>
             </div>
 
+            <!-- Intelligent Preprocessing Dashboard & Live Thumbnail -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px;">
+                <div style="font-size: 12px; color: var(--text-dim);">
+                    <div style="color: var(--accent); font-weight: 700;">Tiền xử lý Bounding Box + COM:</div>
+                    <div id="preprocess_info" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Tự động căn tâm về (14, 14)</div>
+                </div>
+                <div style="text-align: center;">
+                    <canvas id="thumb" width="28" height="28" style="width: 42px; height: 42px; background: #000; border: 1px solid var(--accent); border-radius: 4px; image-rendering: pixelated;"></canvas>
+                    <div style="font-size: 9px; color: var(--text-dim); margin-top: 1px;">28x28 HW</div>
+                </div>
+            </div>
+
             <div class="btn-row">
                 <button class="btn-primary" onclick="predictCanvas()">⚡ Nhận Diện</button>
                 <button class="btn-secondary" onclick="clearCanvas()">Xóa Trắng</button>
@@ -287,19 +299,19 @@ HTML_PAGE = """<!DOCTYPE html>
             <!-- Telemetry Metrics -->
             <div class="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-val">127.90 µs</div>
+                    <div class="metric-val">127.96 µs</div>
                     <div class="metric-lbl">Độ Trễ (Latency)</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-val">12,790</div>
+                    <div class="metric-val">12,796</div>
                     <div class="metric-lbl">Số Chu Kỳ Clock</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-val">7,819 FPS</div>
+                    <div class="metric-val">7,815 FPS</div>
                     <div class="metric-lbl">Thông Lượng (Throughput)</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-val">14.07 µJ</div>
+                    <div class="metric-val">8.32 µJ</div>
                     <div class="metric-lbl">Năng Lượng / Lần Đoán</div>
                 </div>
                 <div class="metric-card">
@@ -307,7 +319,7 @@ HTML_PAGE = """<!DOCTYPE html>
                     <div class="metric-lbl">Khối Cứng DSP Sử Dụng</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-val">110 mW</div>
+                    <div class="metric-val">65.0 mW</div>
                     <div class="metric-lbl">Công Suất Động FPGA</div>
                 </div>
             </div>
@@ -323,23 +335,59 @@ HTML_PAGE = """<!DOCTYPE html>
     <script>
         const cvs = document.getElementById('cvs');
         const ctx = cvs.getContext('2d');
+        const thumb = document.getElementById('thumb');
+        const thumbCtx = thumb ? thumb.getContext('2d') : null;
         let isDrawing = false;
+        let debounceTimer = null;
 
         // Init blank canvas
         function clearCanvas() {
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, cvs.width, cvs.height);
+            if (thumbCtx) {
+                thumbCtx.fillStyle = '#000000';
+                thumbCtx.fillRect(0, 0, 28, 28);
+            }
+            document.getElementById('preprocess_info').innerText = 'Chờ vẽ nét...';
+            document.getElementById('res_digit').innerText = '-';
+            document.getElementById('res_status').innerText = 'Chờ nhập ảnh...';
+            renderChart([0,0,0,0,0,0,0,0,0,0], -1);
         }
         clearCanvas();
+
+        function updateThumbnail(canvas28) {
+            if (!thumbCtx) return;
+            thumbCtx.drawImage(canvas28, 0, 0);
+        }
+
+        // Auto predict debounced when user lifts mouse/finger
+        function autoPredictDebounced() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                predictCanvas();
+            }, 250);
+        }
 
         // Drawing events
         cvs.addEventListener('mousedown', (e) => { isDrawing = true; draw(e); });
         cvs.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', () => { isDrawing = false; ctx.beginPath(); });
+        window.addEventListener('mouseup', () => { 
+            if (isDrawing) {
+                isDrawing = false; 
+                ctx.beginPath(); 
+                autoPredictDebounced();
+            }
+        });
 
         cvs.addEventListener('touchstart', (e) => { isDrawing = true; draw(e.touches[0]); e.preventDefault(); });
         cvs.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
-        window.addEventListener('touchend', () => { isDrawing = false; ctx.beginPath(); });
+        window.addEventListener('touchend', () => { 
+            if (isDrawing) {
+                isDrawing = false; 
+                ctx.beginPath(); 
+                autoPredictDebounced();
+            }
+        });
 
         function draw(e) {
             if (!isDrawing) return;
@@ -357,18 +405,112 @@ HTML_PAGE = """<!DOCTYPE html>
             ctx.moveTo(x, y);
         }
 
-        // Downsample canvas to 28x28 normalized array
+        // 4-Step Intelligent Preprocessing: Bounding Box -> Scale 20x20 -> COM to (14, 14)
         function getCanvasPixels() {
-            const smallCvs = document.createElement('canvas');
-            smallCvs.width = 28;
-            smallCvs.height = 28;
-            const smallCtx = smallCvs.getContext('2d');
-            smallCtx.drawImage(cvs, 0, 0, 28, 28);
-            const imgData = smallCtx.getImageData(0, 0, 28, 28);
+            const rawData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+            const data = rawData.data;
+            const W = cvs.width;
+            const H = cvs.height;
+
+            // Step 1: Scan non-black pixels to find bounding box
+            let minX = W, maxX = -1, minY = H, maxY = -1;
+            let totalIntensity = 0;
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = (y * W + x) * 4;
+                    const val = data[idx]; // Red channel (white on black)
+                    if (val > 25) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                        totalIntensity += val;
+                    }
+                }
+            }
+
+            // If empty canvas, return blank zeros
+            if (totalIntensity === 0 || maxX < minX || maxY < minY) {
+                document.getElementById('preprocess_info').innerText = 'Canvas trống';
+                return new Array(784).fill(0);
+            }
+
+            // Step 2: Add slight padding and compute scaling to fit inside 20x20
+            const pad = 6;
+            minX = Math.max(0, minX - pad);
+            minY = Math.max(0, minY - pad);
+            maxX = Math.min(W - 1, maxX + pad);
+            maxY = Math.min(H - 1, maxY + pad);
+
+            const boxW = maxX - minX + 1;
+            const boxH = maxY - minY + 1;
+
+            const maxDim = Math.max(boxW, boxH);
+            const scale = 20.0 / maxDim;
+            const scaledW = Math.max(1, Math.round(boxW * scale));
+            const scaledH = Math.max(1, Math.round(boxH * scale));
+
+            const tempCvs = document.createElement('canvas');
+            tempCvs.width = 28;
+            tempCvs.height = 28;
+            const tempCtx = tempCvs.getContext('2d');
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillRect(0, 0, 28, 28);
+
+            const startX = Math.floor((28 - scaledW) / 2);
+            const startY = Math.floor((28 - scaledH) / 2);
+
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            tempCtx.drawImage(cvs, minX, minY, boxW, boxH, startX, startY, scaledW, scaledH);
+
+            // Step 3: Compute Center of Mass (COM) on the 28x28 image
+            const imgData28 = tempCtx.getImageData(0, 0, 28, 28);
+            const d28 = imgData28.data;
+            let sumMass = 0;
+            let sumX = 0;
+            let sumY = 0;
+
+            for (let y = 0; y < 28; y++) {
+                for (let x = 0; x < 28; x++) {
+                    const p = d28[(y * 28 + x) * 4];
+                    if (p > 10) {
+                        sumMass += p;
+                        sumX += x * p;
+                        sumY += y * p;
+                    }
+                }
+            }
+
+            let shiftX = 0;
+            let shiftY = 0;
+            if (sumMass > 0) {
+                const comX = sumX / sumMass;
+                const comY = sumY / sumMass;
+                shiftX = Math.round(14.0 - comX);
+                shiftY = Math.round(14.0 - comY);
+            }
+
+            // Step 4: Translate by (shiftX, shiftY) into final 28x28 canvas
+            const finalCvs = document.createElement('canvas');
+            finalCvs.width = 28;
+            finalCvs.height = 28;
+            const finalCtx = finalCvs.getContext('2d');
+            finalCtx.fillStyle = '#000000';
+            finalCtx.fillRect(0, 0, 28, 28);
+            finalCtx.drawImage(tempCvs, shiftX, shiftY);
+
+            // Update live preview thumbnail and info
+            updateThumbnail(finalCvs);
+            document.getElementById('preprocess_info').innerText = 
+                `Box: ${boxW}x${boxH} -> 20x20 | COM: (${shiftX >= 0 ? '+' : ''}${shiftX}, ${shiftY >= 0 ? '+' : ''}${shiftY})`;
+
+            // Extract INT8 pixels [0, 127]
+            const finalImg = finalCtx.getImageData(0, 0, 28, 28).data;
             const pixels = [];
-            for (let i = 0; i < imgData.data.length; i += 4) {
-                // Pixel intensity [0, 255] scaled to INT8 [0, 127]
-                const val = Math.floor(imgData.data[i] * 127 / 255);
+            for (let i = 0; i < finalImg.length; i += 4) {
+                const val = Math.min(127, Math.floor(finalImg[i] * 127 / 255));
                 pixels.push(val);
             }
             return pixels;
@@ -431,6 +573,10 @@ HTML_PAGE = """<!DOCTYPE html>
                     ctx.imageSmoothingEnabled = false;
                     ctx.drawImage(tempCvs, 0, 0, 280, 280);
 
+                    // Update thumbnail
+                    updateThumbnail(tempCvs);
+                    document.getElementById('preprocess_info').innerText = `Mẫu chuẩn MNIST #${digit} (Đã căn tâm)`;
+
                     // Auto predict
                     sendInference(data.pixels);
                 }
@@ -461,6 +607,29 @@ HTML_PAGE = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+def align_center_of_mass(img_list):
+    arr = np.array(img_list, dtype=np.float32).reshape((28, 28))
+    total_mass = np.sum(arr)
+    if total_mass <= 1e-3:
+        return img_list
+    y_idx, x_idx = np.indices((28, 28))
+    cy = np.sum(y_idx * arr) / total_mass
+    cx = np.sum(x_idx * arr) / total_mass
+    shift_x = int(round(14.0 - cx))
+    shift_y = int(round(14.0 - cy))
+    
+    if shift_x == 0 and shift_y == 0:
+        return img_list
+        
+    res = np.zeros_like(arr)
+    for r in range(28):
+        for c in range(28):
+            old_r = r - shift_y
+            old_c = c - shift_x
+            if 0 <= old_r < 28 and 0 <= old_c < 28:
+                res[r, c] = arr[old_r, old_c]
+    return np.clip(np.round(res), 0, 127).astype(int).flatten().tolist()
 
 class RequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -494,8 +663,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length).decode("utf-8")
             data = json.loads(body)
-            img = data.get("image", [0] * 784)
+            raw_img = data.get("image", [0] * 784)
             mode = data.get("mode", "rtl_model")
+
+            # Dual-layer Center-of-Mass alignment
+            img = align_center_of_mass(raw_img)
 
             pred_digit, logits = run_rtl_inference(img)
 
@@ -505,10 +677,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({
                 "predicted": pred_digit,
                 "logits": logits,
-                "latency_us": 127.90,
-                "cycles": 12790,
-                "fps": 7819,
-                "energy_uj": 14.07,
+                "latency_us": 127.96,
+                "cycles": 12796,
+                "fps": 7815,
+                "energy_uj": 8.32,
+                "power_mw": 65.0,
                 "mode": mode
             }).encode("utf-8"))
 
