@@ -42,14 +42,14 @@ def parse_utilization(rpt_file: Path):
         res["ff_pct"] = float(m.group(3))
         
     # Block RAM
-    m = re.search(r"RAMB36/FIFO\*\s*\|\s*(\d+)\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([\d\.]+)", txt)
+    m = re.search(r"(?:RAMB36/FIFO\*|Block RAM \(RAMB36E1\))\s*\|\s*(\d+)\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([\d\.]+)", txt)
     if m:
         res["bram36_used"] = int(m.group(1))
         res["bram36_avail"] = int(m.group(2))
         res["bram36_pct"] = float(m.group(3))
         
     # DSPs
-    m = re.search(r"DSPs\s*\|\s*(\d+)\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([\d\.]+)", txt)
+    m = re.search(r"(?:DSPs|DSP48E1 Blocks)\s*\|\s*(\d+)\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([\d\.]+)", txt)
     if m:
         res["dsp_used"] = int(m.group(1))
         res["dsp_avail"] = int(m.group(2))
@@ -229,7 +229,8 @@ def main():
     print(f"  | Slice LUTs           | {lut_u:>8,} | {lut_a:>9,} | {lut_p:>9.2f}% | 81.41% Headroom free  |")
     print(f"  | Slice Registers (FF) | {ff_u:>8,} | {ff_a:>9,} | {ff_p:>9.2f}% | Ultra-compact logic   |")
     print(f"  | Block RAM (RAMB36E1) | {bram_u:>8} | {bram_a:>9} | {bram_p:>9.2f}% | 51 KB TCDM on-chip    |")
-    print(f"  | DSP48E1 Multipliers  | {dsp_u:>8} | {dsp_a:>9} | {dsp_p:>9.2f}% | ZERO-DSP (100% Free!) |")
+    dsp_note = "ZERO-DSP (100% Free!)" if dsp_u == 0 else f"{dsp_u} DSPs Used (Exact Baseline)"
+    print(f"  | DSP48E1 Multipliers  | {dsp_u:>8} | {dsp_a:>9} | {dsp_p:>9.2f}% | {dsp_note:<21} |")
     print("  +----------------------+----------+-----------+------------+-----------------------+")
 
     # Hierarchical Breakdown Table
