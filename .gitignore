@@ -1,0 +1,36 @@
+# Build & Simulation Artifacts
+sim/*.vvp
+sim/*.vcd
+sim/*.log
+
+# Vivado Synthesis, Implementation & Temporary Logs
+synth/*.log
+synth/*.jou
+synth/*.dcp
+synth/*.pb
+synth/clockInfo.txt
+synth/*.backup.*
+synth/.Xil/
+
+# LaTeX Auxiliary Build Files
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*_test*.png
+report/*_page*.png
+
+# Python Cache & Bytecode
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# OS & Editor Artifacts
+.DS_Store
+*.swp
+*.bak
+*~

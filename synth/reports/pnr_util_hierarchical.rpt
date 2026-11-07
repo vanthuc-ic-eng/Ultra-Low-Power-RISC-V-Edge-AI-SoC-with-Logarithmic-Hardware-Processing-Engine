@@ -1,0 +1,44 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date         : Sat Nov  7 02:21:46 2026
+| Host         : ic-workstation running 64-bit Ubuntu 24.04.5 LTS
+| Command      : report_utilization -hierarchical -file /workspace/projects/pulp_edge_ai_soc/synth/reports/pnr_util_hierarchical.rpt
+| Design       : pulp_riscv_ai_soc_top
+| Device       : xc7z010clg400-1
+| Speed File   : -1
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++---------------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+|          Instance         |        Module       | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++---------------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+| pulp_riscv_ai_soc_top     |               (top) |       3272 |       3080 |     192 |    0 | 2010 |     26 |      0 |          0 |
+|   (pulp_riscv_ai_soc_top) |               (top) |          1 |          1 |       0 |    0 |    6 |      2 |      0 |          0 |
+|   u_cpu                   |    riscv_core_rv32i |       1919 |       1919 |       0 |    0 | 1096 |      0 |      0 |          0 |
+|   u_hwpe_subsystem        |    hwpe_csr_wrapper |       1335 |       1143 |     192 |    0 |  884 |     24 |      0 |          0 |
+|     (u_hwpe_subsystem)    |    hwpe_csr_wrapper |         23 |         23 |       0 |    0 |   71 |      0 |      0 |          0 |
+|     u_hwpe                |       pulp_hwpe_top |       1312 |       1120 |     192 |    0 |  813 |     24 |      0 |          0 |
+|       u_act_mem           | tcdm_activation_mem |        431 |        239 |     192 |    0 |  528 |      0 |      0 |          0 |
+|       u_argmax            |         argmax_unit |          0 |          0 |       0 |    0 |   36 |      0 |      0 |          0 |
+|       u_compute_engine    |  compute_engine_1x4 |        409 |        409 |       0 |    0 |  128 |      0 |      0 |          0 |
+|         gen_pe[0].u_pe    |              pe_mac |         49 |         49 |       0 |    0 |   32 |      0 |      0 |          0 |
+|         gen_pe[1].u_pe    |            pe_mac_0 |        238 |        238 |       0 |    0 |   32 |      0 |      0 |          0 |
+|         gen_pe[2].u_pe    |            pe_mac_1 |         76 |         76 |       0 |    0 |   32 |      0 |      0 |          0 |
+|         gen_pe[3].u_pe    |            pe_mac_2 |         77 |         77 |       0 |    0 |   32 |      0 |      0 |          0 |
+|       u_stream_ctrl       |    hwpe_stream_ctrl |        292 |        292 |       0 |    0 |  120 |      0 |      0 |          0 |
+|       u_weight_mem        |    tcdm_weight_bram |        243 |        243 |       0 |    0 |    1 |     24 |      0 |          0 |
+|   u_uart                  |             uart_tx |         18 |         18 |       0 |    0 |   24 |      0 |      0 |          0 |
++---------------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+
