@@ -88,16 +88,16 @@ for a in range(-128, 128):
 W1 = np.zeros((784, 64), dtype=np.int8)
 W2 = np.zeros((64, 12), dtype=np.int8)
 
-def to_int8_val(w_enc_12b):
-    sign = (w_enc_12b >> 10) & 1
-    zero = (w_enc_12b >> 9) & 1
-    if zero: return 0
-    # Search INT8 value
-    for val in range(-128, 128):
-        s, z, l = enc(val)
-        if (s == sign) and (z == zero) and (l == (w_enc_12b & 0x1FF)):
-            return val
-    return 0
+def dec_log8_to_int8(code_8b):
+    if code_8b == 0x7F:
+        return 0
+    s = (code_8b >> 7) & 1
+    k = (code_8b >> 4) & 7
+    m = code_8b & 0xF
+    frac = (m << 2) | (m >> 2)
+    mag = ((1 << 6) | frac) << k
+    approx = int(round(mag / 64.0))
+    return -approx if s else approx
 
 weights_hex = os.path.join(DATA_DIR, "weights_tcdm.hex")
 if os.path.exists(weights_hex):
@@ -107,11 +107,11 @@ if os.path.exists(weights_hex):
     # Layer 1
     for g in range(16):
         for k in range(784):
-            word48 = int(w_lines[g * 784 + k], 16)
-            w0 = to_int8_val(word48 & 0xFFF)
-            w1 = to_int8_val((word48 >> 12) & 0xFFF)
-            w2 = to_int8_val((word48 >> 24) & 0xFFF)
-            w3 = to_int8_val((word48 >> 36) & 0xFFF)
+            word32 = int(w_lines[g * 784 + k], 16)
+            w0 = dec_log8_to_int8(word32 & 0xFF)
+            w1 = dec_log8_to_int8((word32 >> 8) & 0xFF)
+            w2 = dec_log8_to_int8((word32 >> 16) & 0xFF)
+            w3 = dec_log8_to_int8((word32 >> 24) & 0xFF)
             W1[k, g*4 + 0] = w0
             W1[k, g*4 + 1] = w1
             W1[k, g*4 + 2] = w2
@@ -120,11 +120,11 @@ if os.path.exists(weights_hex):
     # Layer 2
     for g in range(3):
         for k in range(64):
-            word48 = int(w_lines[12544 + g * 64 + k], 16)
-            w0 = to_int8_val(word48 & 0xFFF)
-            w1 = to_int8_val((word48 >> 12) & 0xFFF)
-            w2 = to_int8_val((word48 >> 24) & 0xFFF)
-            w3 = to_int8_val((word48 >> 36) & 0xFFF)
+            word32 = int(w_lines[12544 + g * 64 + k], 16)
+            w0 = dec_log8_to_int8(word32 & 0xFF)
+            w1 = dec_log8_to_int8((word32 >> 8) & 0xFF)
+            w2 = dec_log8_to_int8((word32 >> 16) & 0xFF)
+            w3 = dec_log8_to_int8((word32 >> 24) & 0xFF)
             W2[k, g*4 + 0] = w0
             W2[k, g*4 + 1] = w1
             W2[k, g*4 + 2] = w2

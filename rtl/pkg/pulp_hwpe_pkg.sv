@@ -17,8 +17,8 @@ package pulp_hwpe_pkg;
     localparam int unsigned L2_NEURONS_PAD = 12;
     localparam int unsigned PE_COUNT       = 4;
     localparam int unsigned SHIFT_BITS     = 11;
-    localparam int unsigned PRE_ENC_W_WIDTH = 12;
-    localparam int unsigned WEIGHT_BUS_WIDTH = 48; // 4 x 12-bit pre-encoded log weights
+    localparam int unsigned PRE_ENC_W_WIDTH = 8;
+    localparam int unsigned WEIGHT_BUS_WIDTH = 32; // 4 x 8-bit Log8 pre-encoded weights
 
     // Memory Depths
     localparam int unsigned WEIGHT_MEM_DEPTH = 16384;

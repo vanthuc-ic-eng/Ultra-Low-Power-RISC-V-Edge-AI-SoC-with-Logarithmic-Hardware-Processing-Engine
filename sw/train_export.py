@@ -225,35 +225,42 @@ W2_padded[:, :10] = W2_int8
 b2_padded = np.zeros(12, dtype=np.int32)
 b2_padded[:10] = b2_int32
 
-def enc_weight_12b(w):
-    sa, za, la = enc(int(w))
-    za_bit = 1 if za else 0
-    val = ((sa & 1) << 10) | ((za_bit & 1) << 9) | (la & 0x1FF)
-    return val & 0xFFF
+def enc_weight_8b(w):
+    w = int(w)
+    if w == 0:
+        return 0x7F # Reserved zero code (k=7, m=15)
+    s = 1 if w < 0 else 0
+    mag = abs(w)
+    k = mag.bit_length() - 1 # 0 to 6
+    sa, za, la = enc(w)
+    frac6 = la & 0x3F
+    m = min(15, int(round(frac6 / 4.0)))
+    code = ((s & 1) << 7) | ((k & 7) << 4) | (m & 0xF)
+    return code & 0xFF
 
 weights_hex_path = os.path.join(DATA_DIR, "weights_tcdm.hex")
 with open(weights_hex_path, "w") as f:
-    # Layer 1 weights (48-bit per line: 4 x 12-bit pre-encoded log weights)
+    # Layer 1 weights (32-bit per line: 4 x 8-bit Log8 pre-encoded weights)
     for g in range(16):
         for k in range(784):
-            w0 = enc_weight_12b(W1_int8[k, g*4 + 0])
-            w1 = enc_weight_12b(W1_int8[k, g*4 + 1])
-            w2 = enc_weight_12b(W1_int8[k, g*4 + 2])
-            w3 = enc_weight_12b(W1_int8[k, g*4 + 3])
-            word48 = (w3 << 36) | (w2 << 24) | (w1 << 12) | w0
-            f.write(f"{word48:012x}\n")
-    # Layer 2 weights (48-bit per line)
+            w0 = enc_weight_8b(W1_int8[k, g*4 + 0])
+            w1 = enc_weight_8b(W1_int8[k, g*4 + 1])
+            w2 = enc_weight_8b(W1_int8[k, g*4 + 2])
+            w3 = enc_weight_8b(W1_int8[k, g*4 + 3])
+            word32 = (w3 << 24) | (w2 << 16) | (w1 << 8) | w0
+            f.write(f"{word32:08x}\n")
+    # Layer 2 weights (32-bit per line)
     for g in range(3):
         for k in range(64):
-            w0 = enc_weight_12b(W2_padded[k, g*4 + 0])
-            w1 = enc_weight_12b(W2_padded[k, g*4 + 1])
-            w2 = enc_weight_12b(W2_padded[k, g*4 + 2])
-            w3 = enc_weight_12b(W2_padded[k, g*4 + 3])
-            word48 = (w3 << 36) | (w2 << 24) | (w1 << 12) | w0
-            f.write(f"{word48:012x}\n")
+            w0 = enc_weight_8b(W2_padded[k, g*4 + 0])
+            w1 = enc_weight_8b(W2_padded[k, g*4 + 1])
+            w2 = enc_weight_8b(W2_padded[k, g*4 + 2])
+            w3 = enc_weight_8b(W2_padded[k, g*4 + 3])
+            word32 = (w3 << 24) | (w2 << 16) | (w1 << 8) | w0
+            f.write(f"{word32:08x}\n")
     # Pad to 16384 words to prevent simulator warnings
     for _ in range(16384 - (16*784 + 3*64)):
-        f.write("000000000000\n")
+        f.write("00000000\n")
 
 # Biases
 biases_l1_hex = os.path.join(DATA_DIR, "biases_l1.hex")
